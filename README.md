@@ -1,1 +1,1 @@
-# Inverted_Pendulum
+# Inverted-Pendulum
