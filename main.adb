@@ -6,7 +6,7 @@ pragma Locking_Policy (Ceiling_Locking);                 -- ICCP
 -- Standard Packages
 
 -- Project-Defined Packages
-with Accelorometer_Reader;
+with Task_Implementations;
 
 procedure main is
 
