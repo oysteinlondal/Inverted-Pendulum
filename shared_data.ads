@@ -8,10 +8,7 @@ package Shared_Data is
         Current_Value : Float;
     end Sensor_Reading;
 
-    Accelerometer_SR : Sensor_Reading;
-    Gyroscope_SR     : Sensor_Reading;
-
-    protected Actuator_Write is
+    protected type Actuator_Write is
         procedure Set (Calculated_Value : in Natural);
         entry     Get (Value : out Natural);
     private

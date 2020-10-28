@@ -11,5 +11,12 @@ package Task_Implementations is
    task Accelerometer_Reader with Priority => 19;
    task Cascade_Controller   with Priority => 18;
    task Actuator_Writer      with Priority => 17;
+   
+private
+
+   -- Protected types to store and retrive shared data
+   Accelerometer_SR : Shared_Data.Sensor_Reading;
+   Gyroscope_SR     : Shared_Data.Sensor_Reading;
+   Motor_AW         : Shared_Data.Actuator_Write;
 
 end Task_Implementations;

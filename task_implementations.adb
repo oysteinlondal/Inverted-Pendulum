@@ -3,12 +3,10 @@ package body Task_Implementations is
    task body Gyroscope_Reader is 
 
       -- Timing Constraints
-      Offset                      : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(0);
-      Period                      : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(2000);
       Next_Period                 : Ada.Real_Time.Time;
       Start_Point                 : Ada.Real_Time.Time;
-
-      Velocity                    : Float := 48.0;
+      Offset                      : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(0);
+      Period                      : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(20);
 
       -- Worst-Case Computation Time Analysis
 
@@ -17,17 +15,20 @@ package body Task_Implementations is
       Total_Computation_Time      : Ada.Real_Time.Time_Span;
       Worst_Case_Computation_Time : Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(0);
 
+      Velocity                    : Float;
+
       begin
 
          Epoch.Get_Start_Time(Start_Point);
-         Next_Period := Start_Point + Offset; -- Define next time to run
+         Next_Period   := Start_Point + Offset; -- Define next time to run
 
          loop
             delay until Next_Period; -- Wait for new period 
 
             Execution_Start := Ada.Real_Time.Clock; -- Start of execution
-
-            Shared_Data.Gyroscope_SR.Set(Velocity);
+ 
+            Velocity := 48.0; --NANO.Read_Gyro
+            Gyroscope_SR.Set(Velocity); 
             Next_Period   := Next_Period + Period;
 
             Execution_End := Ada.Real_Time.Clock;   -- End of execution
@@ -48,12 +49,15 @@ package body Task_Implementations is
 
       -- Timing Constraints
       Offset                     : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(0);
-      Period                     : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(2000);
+      Period                     : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(20);
       Next_Period                : Ada.Real_Time.Time;
       Start_Point                : Ada.Real_Time.Time;
 
-      -- Worst-Case Computation Time Analysis
+      -- I/O Jitter Constraints Of Accelorometer
+      Next_Reading               : Ada.Real_Time.Time;
+      Read_Period                : Ada.Real_Time.Time_Span := Ada.Real_Time.Microseconds(100);
 
+      -- Worst-Case Computation Time Analysis
       Execution_Start             : Ada.Real_Time.Time;
       Execution_End               : Ada.Real_Time.Time;
       Total_Computation_Time      : Ada.Real_Time.Time_Span;
@@ -81,11 +85,11 @@ package body Task_Implementations is
             Next_Period := Start_Point + Offset; -- Define next time to run
             loop
                   delay until Next_Period; -- Wait for new period 
-
                   Execution_Start := Ada.Real_Time.Clock; -- Start of execution
-
                   Done := False;
+                  Next_Reading := Next_Period;
                   loop
+                        delay until Next_Reading;
                         Count_Accelerometer_Reads := (Count_Accelerometer_Reads + 1) mod Max_Accelerometer_Reads;
 
                         New_Xvalue := 3.0;--NANO.AccX;
@@ -102,16 +106,15 @@ package body Task_Implementations is
 
                               Angle := Find_Angle(Avg_Accelerometer_Xvalue, Avg_Accelerometer_Yvalue);
 
-                              Shared_Data.Accelerometer_SR.Set(Angle);
+                              Accelerometer_SR.Set(Angle);
 
                               -- Reset
 
                               Sum_Accelerometer_Xvalues := 0.0;
                               Sum_Accelerometer_Yvalues := 0.0;
                         end if;
-
                         exit when Done;
-
+                        Next_Reading := Next_Reading + Read_Period;
                   end loop;
 
                   Next_Period := Next_Period + Period;
@@ -134,7 +137,7 @@ package body Task_Implementations is
 
       -- Timing Constraints
       Offset                     : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(0);
-      Period                     : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(2000);
+      Period                     : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(20);
       Next_Period                : Ada.Real_Time.Time;
       Start_Point                : Ada.Real_Time.Time;
 
@@ -159,9 +162,9 @@ package body Task_Implementations is
 
                Execution_Start := Ada.Real_Time.Clock; -- Start of execution
 
-               Shared_Data.Accelerometer_SR.Get(Angle);
-               Shared_Data.Gyroscope_SR.Get(Velocity);
-               Shared_Data.Actuator_Write.Set(Actuator_Value);
+               Accelerometer_SR.Get(Angle);
+               Gyroscope_SR.Get(Velocity);
+               Motor_AW.Set(Actuator_Value);
                Next_Period := Next_Period + Period;
 
                Execution_End := Ada.Real_Time.Clock;   -- End of execution
@@ -182,7 +185,7 @@ package body Task_Implementations is
 
       -- Timing Constraints
       Offset                     : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(0);
-      Period                     : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(2000);
+      Period                     : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(20);
       Next_Period                : Ada.Real_Time.Time;
       Start_Point                : Ada.Real_Time.Time;
 
@@ -205,7 +208,7 @@ package body Task_Implementations is
 
                Execution_Start := Ada.Real_Time.Clock; -- Start of execution
 
-               Shared_Data.Actuator_Write.Get(Actuator_Value);
+               Motor_AW.Get(Actuator_Value);
                Next_Period := Next_Period + Period;
 
                Execution_End := Ada.Real_Time.Clock;   -- End of execution
