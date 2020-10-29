@@ -181,6 +181,8 @@ package body Task_Implementations is
       Period                     : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(20);
       Next_Period                : Ada.Real_Time.Time;
       Start_Point                : Ada.Real_Time.Time;
+      -- We do not wish to write to the motor to early
+      Min_Start_Time             : Ada.Real_Time.Time_Span          := Ada.Real_Time.Milliseconds(15);
       -- Worst-Case Computation Time Analysis
       Execution_Start             : Ada.Real_Time.Time;
       Execution_End               : Ada.Real_Time.Time;
@@ -193,8 +195,8 @@ package body Task_Implementations is
          -- Define next time to run
          Next_Period := Start_Point + Offset;
          loop
-            -- Wait for new period 
-            delay until Next_Period; 
+            -- Wait for new period
+            delay until Next_Period + Min_Start_Time; 
 
             -- START OF EXECUTION
 
