@@ -4,6 +4,8 @@ with Angle; use Angle;
 with Ada.Real_Time; use Ada.Real_Time;
 with Task_Scheduling; use Task_Scheduling;
 with Shared_Data;
+with Meassure_Velocity;
+with Meassure_Acceleration;
 
 package Task_Implementations is
 

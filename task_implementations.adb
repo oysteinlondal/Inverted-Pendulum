@@ -24,7 +24,8 @@ package body Task_Implementations is
             -- START OF EXECUTION
 
             Execution_Start := Ada.Real_Time.Clock;
-            Velocity := 48.0; --NANO.Read_Gyro
+            Meassure_Velocity.Retrieve_Velocity(Velocity);
+            Velocity := To_Radians(Velocity);
             Gyroscope_SR.Set(Velocity); 
             -- Define next time to run
             Next_Period   := Next_Period + Period;
@@ -65,8 +66,8 @@ package body Task_Implementations is
       Avg_Accelerometer_Xvalue   : Float := 0.0;
       Avg_Accelerometer_Yvalue   : Float := 0.0;
       -- New Meassurement For Each Coordinate
-      New_Xvalue                 : Float;
-      New_Yvalue                 : Float;
+      Acceleration_X             : Float;
+      Acceleration_Y             : Float;
       -- Current Number Of Meassurements And Maximum Number Of Meassurements
       Count_Accelerometer_Reads  : Natural := 0;
       Max_Accelerometer_Reads    : Natural := 5;
@@ -92,11 +93,10 @@ package body Task_Implementations is
                         -- Count is zero when number of readings is equal to the value of max count
                         Count_Accelerometer_Reads := (Count_Accelerometer_Reads + 1) mod Max_Accelerometer_Reads;
                         -- Read from sensor
-                        New_Xvalue := 3.0;--NANO.AccX;
-                        New_Yvalue := 2.0;--NANO.AccY;
+                        Meassure_Acceleration.Retrieve_Acceleration(Acceleration_X, Acceleration_Y);
                         -- Adde reading to the sum
-                        Sum_Accelerometer_Xvalues := Sum_Accelerometer_Xvalues + New_Xvalue;
-                        Sum_Accelerometer_Yvalues := Sum_Accelerometer_Yvalues + New_Yvalue;
+                        Sum_Accelerometer_Xvalues := Sum_Accelerometer_Xvalues + Acceleration_X;
+                        Sum_Accelerometer_Yvalues := Sum_Accelerometer_Yvalues + Acceleration_Y;
                         -- Check when number of readings is sufficient
                         if Count_Accelerometer_Reads = 0 then
                               Done := True;
