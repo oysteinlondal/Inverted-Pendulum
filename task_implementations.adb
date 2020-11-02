@@ -1,7 +1,33 @@
+with Exceptions; use Exceptions;
 package body Task_Implementations is
-
-   task body Gyroscope_Reader is 
-      -- Timing Constraints
+   
+   procedure Acceptance_Test(Max : float;
+                              Min : float;
+                              value : float;
+                              Computation_time : ada.Real_Time.Time_Span;
+                              Max_Computation_time : Ada.Real_Time.Time_Span;
+                             Count : Integer)is
+      begin         
+         if Count > 4 then
+            raise Recovery_Block_Overload;
+         
+         elsif Value > Max then
+            raise Value_Exceed_Max;
+            
+         elsif Value < Min then
+            raise Value_Exceed_Max;
+               
+         elsif Computation_Time > Max_Computation_Time then
+            raise Excecution_Time_Overun;
+                  
+         end if;
+      end acceptance_Test;    
+   
+   
+   task body Gyroscope_Reader is
+      
+      
+              -- Timing Constraints
       Next_Period                 : Ada.Real_Time.Time;
       Start_Point                 : Ada.Real_Time.Time;
       Offset                      : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(0);
@@ -10,17 +36,20 @@ package body Task_Implementations is
       Execution_Start             : Ada.Real_Time.Time;
       Execution_End               : Ada.Real_Time.Time;
       Total_Computation_Time      : Ada.Real_Time.Time_Span;
+      Total_Computation_Time_Limit: Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(5);
       Worst_Case_Computation_Time : Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(0);
       -- Task Specific Variable Declarations
       Velocity                    : Float;
-      begin
-         Epoch.Get_Start_Time(Start_Point);
-         -- Define next time to run
-         Next_Period   := Start_Point + Offset;
-         loop
-            -- Wait for new period 
-            delay until Next_Period;
+      --Exception variables
+      Velocity_Max                : float := 6.0;
+      Velocity_Min                : float := -6.0;
+      Recoveryblock_count         : integer := 0; 
+      Recoveryblock_count_limit   : integer := 4;
 
+   
+         -------ALL EXECUTION GATHERED IN A FUNCTION
+      procedure excecute is
+         begin
             -- START OF EXECUTION
 
             Execution_Start := Ada.Real_Time.Clock;
@@ -40,9 +69,51 @@ package body Task_Implementations is
                   Worst_Case_Computation_Time := Total_Computation_Time;
             end if;
             Ada.Text_IO.Put_Line("A" & Duration'Image(To_Duration(Worst_Case_Computation_Time)));
-         end loop;
-   end Gyroscope_Reader;
+      end excecute;
+   
+      begin
+         Epoch.Get_Start_Time(Start_Point);
+         -- Define next time to run
+         Next_Period   := Start_Point + Offset;
+      loop
+         declare
+            
+            begin
+            -- Wait for new period
+            delay until Next_Period;
+            
+            excecute;   ---EXCECUTE PERIOD CALCULATIONS
+            
+            Acceptance_Test(Velocity_Max, Velocity_Min, Velocity, Total_Computation_Time, Total_Computation_Time_Limit, Recoveryblock_count);
 
+
+         exception  -- Containing Recovery Blocks
+            when Value_Exceed_Max =>
+               Recoveryblock_count := Recoveryblock_count + 1;
+               Velocity := 3.0;
+               Gyroscope_SR.Set(Velocity);
+               Acceptance_Test(Velocity_Max, Velocity_Min, Velocity, Total_Computation_Time, Total_Computation_Time_Limit, Recoveryblock_count);
+
+            when Value_Exceed_Min =>
+               Recoveryblock_count := Recoveryblock_count + 1;
+               Velocity := -3.0;
+               Gyroscope_SR.Set(Velocity);
+               Acceptance_Test(Velocity_Max, Velocity_Min, Velocity, Total_Computation_Time, Total_Computation_Time_Limit, Recoveryblock_count);
+               
+            When Excecution_Time_Overun =>
+               ada.Text_IO.Put_Line("Gyroscope read: Execturion time error");
+            
+            when Recovery_Block_Overload =>
+               ada.Text_IO.Put_Line("Gyroscope read: Recovery Block Overload");
+
+            when Unknown_Error =>
+
+               Ada.Text_IO.Put_Line("Gyroscope read: Unknown error!!!");
+        end;
+      end loop;
+   end Gyroscope_Reader;
+   
+   
    task body Accelerometer_Reader is 
       -- Timing Constraints
       Offset                     : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(0);
@@ -56,6 +127,7 @@ package body Task_Implementations is
       Execution_Start             : Ada.Real_Time.Time;
       Execution_End               : Ada.Real_Time.Time;
       Total_Computation_Time      : Ada.Real_Time.Time_Span;
+      Total_Computation_Time_Limit: Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(5);
       Worst_Case_Computation_Time : Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(0);
       -- Task Specific Variable Declarations
       Angle                      : Float;
@@ -73,14 +145,16 @@ package body Task_Implementations is
       Max_Accelerometer_Reads    : Natural := 5;
       -- Indicates When Meassuring Is Done According To The Max Counts
       Done                       : Boolean;
-      begin
-            Epoch.Get_Start_Time(Start_Point);
-            -- Define next time to run
-            Next_Period := Start_Point + Offset; 
-            loop
-                  -- Wait for new period 
-                  delay until Next_Period; 
-                  Execution_Start := Ada.Real_Time.Clock;
+      -- Exception variables
+      Angle_Max                   : float := 6.0;
+      Angle_Min                   : float := -6.0;
+      Recoveryblock_count         : integer := 0; 
+      Recoveryblock_count_limit   : integer := 4;
+      
+      
+      procedure excecute is
+         begin
+         Execution_Start := Ada.Real_Time.Clock;
 
                   -- START OF EXECUTION
 
@@ -127,8 +201,65 @@ package body Task_Implementations is
                   if Total_Computation_Time > Worst_Case_Computation_Time then
                         Worst_Case_Computation_Time := Total_Computation_Time;
                   end if;
-                  Ada.Text_IO.Put_Line("B" & Duration'Image(To_Duration(Worst_Case_Computation_Time)));
-                  end loop;
+                  Ada.Text_IO.Put_Line("B" & Duration'Image(To_Duration(Worst_Case_Computation_Time)));         
+         
+      end excecute;
+      
+  
+      
+   begin
+         Epoch.Get_Start_Time(Start_Point);
+            -- Define next time to run
+         Next_Period := Start_Point + Offset; 
+      loop
+         declare
+         begin             
+               -- Wait for new period 
+            delay until Next_Period;
+            
+            Excecute;
+            Acceptance_Test(Angle_Max,
+                            Angle_Min, Angle,
+                            Total_Computation_Time,
+                            Total_Computation_Time_Limit,
+                            Recoveryblock_count);
+            
+          exception
+            when Value_Exceed_Max =>
+               Recoveryblock_count := Recoveryblock_count + 1;
+               Angle := 0.01;
+               Accelerometer_SR.Set(Angle);
+               Acceptance_Test(Angle_Max,
+                               Angle_Min,
+                               Angle,
+                               Total_Computation_Time,
+                               Total_Computation_Time_Limit,
+                               Recoveryblock_count);
+
+               
+            when Value_Exceed_Min =>
+               Recoveryblock_count := Recoveryblock_count + 1;
+               Angle := -0.01;
+               Accelerometer_SR.Set(Angle);
+               Acceptance_Test(Angle_Max,
+                               Angle_Min,
+                               Angle,
+                               Total_Computation_Time,
+                               Total_Computation_Time_Limit,
+                               Recoveryblock_count);
+               
+            When Excecution_Time_Overun =>
+               ada.Text_IO.Put_Line("Accelerometer read: Execturion time error");
+            
+            when Recovery_Block_Overload =>
+               ada.Text_IO.Put_Line("Accelerometer read: Recovery Block Overload");
+
+            when Unknown_Error =>
+               Ada.Text_IO.Put_Line("Accelerometer read: Unknown error!!!");
+        end;
+            
+         end loop;
+
    end Accelerometer_Reader;
 
    task body Cascade_Controller is 
@@ -141,18 +272,19 @@ package body Task_Implementations is
       Execution_Start             : Ada.Real_Time.Time;
       Execution_End               : Ada.Real_Time.Time;
       Total_Computation_Time      : Ada.Real_Time.Time_Span;
+      Total_Computation_Time_Limit: Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(5);
       Worst_Case_Computation_Time : Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(0);
       -- Task Specific Variable Declarations
       Angle                      : Float;
       Velocity                   : Float;
       Actuator_Value             : Natural := 1500;
-      begin
-            Epoch.Get_Start_Time(Start_Point);
-            -- Define next time to run
-            Next_Period := Start_Point + Offset;
-            loop
-                  delay until Next_Period; -- Wait for new period 
-
+      Actuator_Value_Max         : Float := 2000.0;
+      Actuator_Value_Min         : Float := 1000.0;
+      Recoveryblock_count         : integer := 0; 
+      Recoveryblock_count_limit   : integer := 4;
+      
+      procedure Excecute is
+         begin
                   -- START OF EXECUTION
 
                   Execution_Start := Ada.Real_Time.Clock; 
@@ -172,6 +304,61 @@ package body Task_Implementations is
                         Worst_Case_Computation_Time := Total_Computation_Time;
                   end if;
                   Ada.Text_IO.Put_Line("C" & Duration'Image(To_Duration(Worst_Case_Computation_Time)));
+         
+      end Excecute;
+      
+      begin
+            Epoch.Get_Start_Time(Start_Point);
+            -- Define next time to run
+            Next_Period := Start_Point + Offset;
+      loop
+         declare
+            begin
+               delay until Next_Period; -- Wait for new period
+               Excecute;
+                Acceptance_Test(Actuator_Value_Max,
+                                Actuator_Value_Min,
+                                Float(Actuator_Value),
+                                Total_Computation_Time,
+                                Total_Computation_Time_Limit,
+                                Recoveryblock_count);
+          exception
+            when Value_Exceed_Max =>
+               Recoveryblock_count := Recoveryblock_count + 1;
+               Actuator_Value := 2000;
+               Motor_AW.Set(Actuator_Value);
+               Acceptance_Test(Actuator_Value_Max,
+                                Actuator_Value_Min,
+                                Float(Actuator_Value),
+                                Total_Computation_Time,
+                                Total_Computation_Time_Limit,
+                                Recoveryblock_count);
+
+               
+            when Value_Exceed_Min =>
+               Recoveryblock_count := Recoveryblock_count + 1;
+               Actuator_Value := 1000;
+               Motor_AW.Set(Actuator_Value);
+               Acceptance_Test(Actuator_Value_Max,
+                                Actuator_Value_Min,
+                                Float(Actuator_Value),
+                                Total_Computation_Time,
+                                Total_Computation_Time_Limit,
+                                Recoveryblock_count);
+               
+            When Excecution_Time_Overun =>
+               ada.Text_IO.Put_Line("Cascade controller: Execturion time error");
+            
+            when Recovery_Block_Overload =>
+               ada.Text_IO.Put_Line("Cascade controller: Recovery Block Overload");
+
+            when Unknown_Error =>
+               Ada.Text_IO.Put_Line("Cascade controller: Unknown error!!!");
+        end;
+            
+         
+         
+         
             end loop;
    end Cascade_Controller;
 
