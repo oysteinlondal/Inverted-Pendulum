@@ -1,6 +1,6 @@
-package body Acceptance_Test is
+package body Acceptance_Test_Lib is
 
-    procedure Acceptance_Test(Max, Min, Value : in Float; Computation_Time, Ada.Real_Time.Time_Span: in Ada.Real_Time.Time_Span; Count : in Integer) is
+    procedure Acceptance_Test(Max, Min, Value : in Float; Computation_Time, Max_Computation_Time: in Ada.Real_Time.Time_Span; Count : in Integer) is
     begin         
         if Count > 4 then
             raise Recovery_Block_Overload;
@@ -16,4 +16,4 @@ package body Acceptance_Test is
         end if;
     end Acceptance_Test;  
 
-end Acceptance_Test;
+end Acceptance_Test_Lib;

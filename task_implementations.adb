@@ -17,6 +17,7 @@ package body Task_Implementations is
       --Exception variables
       Velocity_Max                : Float := 6.0;
       Velocity_Min                : Float := -6.0;
+      Recoveryblock_Count         : Integer := 0; 
       begin
             Motor_Setup.Calibrate_Motors_If_Required;
             Epoch.Get_Start_Time(Start_Point);
@@ -47,7 +48,7 @@ package body Task_Implementations is
                         end if;
                         Ada.Text_IO.Put_Line("A" & Duration'Image(To_Duration(Worst_Case_Computation_Time)));
                         -- Acceptance Test
-                        Acceptance_Test(Angle_Max, Angle_Min, Angle, Total_Computation_Time, Total_Computation_Time_Limit, Recoveryblock_Count);
+                        Acceptance_Test(Velocity_Max, Velocity_Min, Velocity, Total_Computation_Time, Total_Computation_Time_Limit, Recoveryblock_Count);
                   exception
                         when Value_Exceed_Max =>
                               Recoveryblock_Count := Recoveryblock_Count + 1;
@@ -107,6 +108,7 @@ package body Task_Implementations is
       -- Exception variables
       Angle_Max                   : Float := 6.0;
       Angle_Min                   : Float := -6.0;
+      Recoveryblock_Count         : Integer := 0; 
       begin
             Motor_Setup.Calibrate_Motors_If_Required;
             Epoch.Get_Start_Time(Start_Point);
@@ -204,11 +206,12 @@ package body Task_Implementations is
       Total_Computation_Time_Limit: Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(5);
       Worst_Case_Computation_Time : Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(0);
       -- Task Specific Variable Declarations
-      Angle                      : Float;
-      Velocity                   : Float;
-      Actuator_Value             : Natural := 1500;
-      Actuator_Value_Max         : Float := 2000;
-      Actuator_Value_Min         : Float := 1000;
+      Angle                       : Float;
+      Velocity                    : Float;
+      Actuator_Value              : Natural := 1500;
+      Actuator_Value_Max          : Float := 2000.0;
+      Actuator_Value_Min          : Float := 1000.0;
+      Recoveryblock_Count         : Integer := 0; 
       begin
             Motor_Setup.Calibrate_Motors_If_Required;
             Epoch.Get_Start_Time(Start_Point);
@@ -275,7 +278,7 @@ package body Task_Implementations is
       Execution_Start             : Ada.Real_Time.Time;
       Execution_End               : Ada.Real_Time.Time;
       Total_Computation_Time      : Ada.Real_Time.Time_Span;
-      Worst_Case_Computation_Time : Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(0);
+      Worst_Case_Computation_Time : Ada.Real_Time.Time_Span         := Ada.Real_Time.Milliseconds(0);
       -- Task Specific Variable Declarations
       Actuator_Value             : Natural;
       begin
