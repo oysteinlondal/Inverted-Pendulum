@@ -7,7 +7,7 @@ with Setup; use Setup;
 with Shared_Data;
 with Meassure_Velocity;
 with Meassure_Acceleration;
-with exceptions;
+with Acceptance_Test; use Acceptance_Test;
 
 package Task_Implementations is
 
@@ -22,5 +22,8 @@ private
    Accelerometer_SR : Shared_Data.Sensor_Reading;
    Gyroscope_SR     : Shared_Data.Sensor_Reading;
    Motor_AW         : Shared_Data.Actuator_Write;
+
+   Recoveryblock_Count         : Constant Integer := 0; 
+   Recoveryblock_Count_Limit   : Constant Integer := 4;
 
 end Task_Implementations;

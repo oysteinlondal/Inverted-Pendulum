@@ -5,7 +5,7 @@ package body Setup is
         begin
             if not Setup_Done then
                 Put("Start Setup");
-                delay 2.0;
+                delay 4.0;
                 Setup_Done := True;
             end if;
         end Calibrate_Motors_If_Required;
