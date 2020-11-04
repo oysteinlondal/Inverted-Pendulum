@@ -1,0 +1,34 @@
+with Ada.Numerics.Elementary_Functions; use Ada.Numerics.Elementary_Functions;
+with Ada.Numerics; use Ada.Numerics;
+
+
+package body Cascade_Controller is
+   Ret_Angle    : Float := Float(Angle);
+   Ret_Velocity : Float := Float(Velocity);
+   kp           : Float := 1.5;
+   kp2          : Float := 1.0;
+   ut1          : Float := 0.0;
+   
+   function To_Radians(Ret_Velocity : Float) return Float is 
+   begin
+      
+      return Ret_Velocity * Pi/180;
+      
+   end To_Radians;
+   
+   function Inner_Loop(ut1           : Float) return Float is
+   begin
+      
+      return ut1 - Ret_Angle * kp;
+      
+   end Inner_Loop;
+   
+   function Power_To_Engine(ut2     : Float) return Float is
+   ut2 : Float := 0.0;
+   begin
+      
+      return ut2 = kp2 * (ut1 - Ret_Velocity);
+      
+   end Power_To_Engine;
+   
+end Cascade_Controller;
