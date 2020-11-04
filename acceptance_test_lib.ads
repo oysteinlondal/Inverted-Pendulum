@@ -1,4 +1,4 @@
-with Ada.Real_Time;
+with Ada.Real_Time; use Ada.Real_Time;
 with Exception_Declarations; use Exception_Declarations;
 package Acceptance_Test_Lib is
 
