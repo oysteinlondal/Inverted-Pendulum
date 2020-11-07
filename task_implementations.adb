@@ -195,23 +195,32 @@ package body Task_Implementations is
 
    task body Cascade_Controller is 
       -- Timing Constraints
-      Offset                     : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(0);
-      Period                     : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(20);
-      Next_Period                : Ada.Real_Time.Time;
-      Start_Point                : Ada.Real_Time.Time;
+      Offset                      : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(0);
+      Period                      : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(20);
+      Next_Period                 : Ada.Real_Time.Time;
+      Start_Point                 : Ada.Real_Time.Time;
       -- Worst-Case Computation Time Analysis
       Execution_Start             : Ada.Real_Time.Time;
       Execution_End               : Ada.Real_Time.Time;
       Total_Computation_Time      : Ada.Real_Time.Time_Span;
       Total_Computation_Time_Limit: Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(5);
       Worst_Case_Computation_Time : Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(0);
-      -- Task Specific Variable Declarations
-      Angle                       : Float;
-      Velocity                    : Float;
-      Actuator_Value              : Natural := 1500;
+      -- Exception Detection Variables
       Actuator_Value_Max          : Float := 2000.0;
       Actuator_Value_Min          : Float := 1000.0;
       Recoveryblock_Count         : Integer := 0; 
+      -- Task Specific Variable Declarations
+      Current_Angle               : Float;
+      Current_Velocity            : Float;
+      Actuator_Value              : RPM;
+      -- PID Variables
+      Position_Reference          : Constant Float := 0.0;
+      Velocity_Reference          : Float;
+      Torque_Reference            : Float;
+      Position_Error              : Float;
+      Velocity_Error              : Float;
+      K_PP                        : Constant Float := 1.0;
+      K_PV                        : Constant Float := 10.0;
       begin
             Motor_Setup.Calibrate_Motors_If_Required;
             Epoch.Get_Start_Time(Start_Point);
@@ -222,9 +231,18 @@ package body Task_Implementations is
                         delay until Next_Period; -- Wait for new period 
 
                         -- START OF EXECUTION
+
                         Execution_Start := Ada.Real_Time.Clock; 
-                        Accelerometer_SR.Get(Angle);
-                        Gyroscope_SR.Get(Velocity);
+                        -- Get current angle from accelerometer
+                        Gyroscope_SR.Get(Current_Velocity);
+                        Accelerometer_SR.Get(Current_Angle);
+                        Position_Error := Position_Reference - Current_Angle;
+                        Position_Controller(K_PP, Position_Error, Velocity_Reference);
+                        -- Get current angle from gyroscope
+                        Velocity_Error := Velocity_Reference - Current_Velocity;
+                        Velocity_Controller(K_PV, Velocity_Error, Torque_Reference);
+                        Map_To_RPM(Torque_Reference, Actuator_Value);
+                        -- Set RPM value to protected object
                         Motor_AW.Set(Actuator_Value);
                         -- Define next time to run
                         Next_Period := Next_Period + Period;
@@ -280,7 +298,7 @@ package body Task_Implementations is
       Total_Computation_Time      : Ada.Real_Time.Time_Span;
       Worst_Case_Computation_Time : Ada.Real_Time.Time_Span         := Ada.Real_Time.Milliseconds(0);
       -- Task Specific Variable Declarations
-      Actuator_Value             : Natural;
+      Actuator_Value             : RPM;
       begin
             Motor_Setup.Calibrate_Motors_If_Required;
             Epoch.Get_Start_Time(Start_Point);

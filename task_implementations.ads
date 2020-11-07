@@ -9,6 +9,8 @@ with Meassure_Velocity;
 with Meassure_Acceleration;
 with Acceptance_Test_Lib; use Acceptance_Test_Lib;
 with Exception_Declarations; use Exception_Declarations;
+with Type_Lib; use Type_Lib;
+with PID_Functionality; use PID_Functionality;
 
 package Task_Implementations is
 

@@ -15,13 +15,13 @@ package body Shared_Data is
     end Sensor_Reading;
 
     protected body Actuator_Write is
-        procedure Set (Calculated_Value : in Natural) is
+        procedure Set (Calculated_Value : in RPM) is
         begin
             Current_Value := Calculated_Value;
             Updated       := True;
         end Set;
 
-        entry Get (Value : out Natural) when Updated is
+        entry Get (Value : out RPM) when Updated is
         begin
             Value   := Current_Value;
             Updated := False;
