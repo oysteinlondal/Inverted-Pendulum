@@ -3,7 +3,7 @@ package body Acceptance_Test_Lib is
     procedure Acceptance_Test(Max, Min, Value : in Float; Computation_Time, Max_Computation_Time: in Ada.Real_Time.Time_Span; Count : in Integer) is
     begin         
         
-        elsif Value > Max then
+        if Value > Max then
             raise Value_Exceed_Max;   
                 
         elsif Value < Min then
