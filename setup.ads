@@ -1,4 +1,6 @@
 with Ada.Text_IO; use Ada.Text_IO;
+with NRF52_DK.Time;
+with NRF52_DK.IOs; use NRF52_DK.IOs;
 
 package Setup is
     
