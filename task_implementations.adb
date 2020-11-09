@@ -65,11 +65,6 @@ package body Task_Implementations is
                         When Excecution_Time_Overun =>
                               ada.Text_IO.Put_Line("Gyroscope read: Execution time error");
                         
-                        when Recovery_Block_Overload =>
-                              ada.Text_IO.Put_Line("Gyroscope read: Recovery Block Overload");
-
-                        when Unknown_Error =>
-                              Ada.Text_IO.Put_Line("Gyroscope read: Unknown error!!!");
                   end;
             end loop;
    end Gyroscope_Reader;
@@ -183,12 +178,7 @@ package body Task_Implementations is
                         
                         When Excecution_Time_Overun =>
                               Ada.Text_IO.Put_Line("Accelerometer read: Execution time error");
-                        
-                        when Recovery_Block_Overload =>
-                              Ada.Text_IO.Put_Line("Accelerometer read: Recovery Block Overload");
 
-                        when Unknown_Error =>
-                              Ada.Text_IO.Put_Line("Accelerometer read: Unknown error!!!");
                   end;
             end loop;
    end Accelerometer_Reader;
@@ -274,12 +264,7 @@ package body Task_Implementations is
                   
                         when Excecution_Time_Overun =>
                               Ada.Text_IO.Put_Line("Cascade controller: Execution time error");
-                        
-                        when Recovery_Block_Overload =>
-                              Ada.Text_IO.Put_Line("Cascade controller: Recovery Block Overload");
 
-                        when Unknown_Error =>
-                              Ada.Text_IO.Put_Line("Cascade controller: Unknown error!!!");
                   end;
             end loop;
    end Cascade_Controller;
