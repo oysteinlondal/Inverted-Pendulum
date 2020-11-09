@@ -272,7 +272,7 @@ package body Task_Implementations is
                               Motor_AW.Set(Actuator_Value);
                               Acceptance_Test(Actuator_Value_Max, Actuator_Value_Min, Float(Actuator_Value), Total_Computation_Time, Total_Computation_Time_Limit, Recoveryblock_Count);
                   
-                        When Excecution_Time_Overun =>
+                        when Excecution_Time_Overun =>
                               Ada.Text_IO.Put_Line("Cascade controller: Execution time error");
                         
                         when Recovery_Block_Overload =>
