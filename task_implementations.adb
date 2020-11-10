@@ -203,6 +203,7 @@ package body Task_Implementations is
       Current_Angle               : Float;
       Current_Velocity            : Float;
       Actuator_Value              : RPM;
+      Motor_To_Run                : Motor_Direction;
       -- PID Variables
       Position_Reference          : Constant Float := 0.0;
       Velocity_Reference          : Float;
@@ -232,8 +233,14 @@ package body Task_Implementations is
                         Velocity_Error := Velocity_Reference - Current_Velocity;
                         Velocity_Controller(K_PV, Velocity_Error, Torque_Reference);
                         Map_To_RPM(Torque_Reference, Actuator_Value);
+                        -- Decide which motor to be activated
+                        if Torque_Reference > 0.0 then
+                              Motor_To_Run := Right;
+                        else
+                              Motor_To_Run := Left;
+                        end if;
                         -- Set RPM value to protected object
-                        Motor_AW.Set(Actuator_Value);
+                        Motor_AW.Set(Actuator_Value, Motor_To_Run);
                         -- Define next time to run
                         Next_Period := Next_Period + Period;
 
@@ -253,13 +260,13 @@ package body Task_Implementations is
                         when Value_Exceed_Max =>
                               Recoveryblock_Count := Recoveryblock_Count + 1;
                               Actuator_Value := 2000;
-                              Motor_AW.Set(Actuator_Value);
+                              Motor_AW.Set(Actuator_Value, Motor_To_Run);
                               Acceptance_Test(Actuator_Value_Max, Actuator_Value_Min, Float(Actuator_Value), Total_Computation_Time, Total_Computation_Time_Limit, Recoveryblock_Count);
                
                         when Value_Exceed_Min =>
                               Recoveryblock_Count := Recoveryblock_Count + 1;
                               Actuator_Value := 1000;
-                              Motor_AW.Set(Actuator_Value);
+                              Motor_AW.Set(Actuator_Value, Motor_To_Run);
                               Acceptance_Test(Actuator_Value_Max, Actuator_Value_Min, Float(Actuator_Value), Total_Computation_Time, Total_Computation_Time_Limit, Recoveryblock_Count);
                   
                         when Excecution_Time_Overun =>
@@ -271,19 +278,20 @@ package body Task_Implementations is
 
    task body Actuator_Writer is 
       -- Timing Constraints
-      Offset                     : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(0);
-      Period                     : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(20);
-      Next_Period                : Ada.Real_Time.Time;
-      Start_Point                : Ada.Real_Time.Time;
+      Offset                      : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(0);
+      Period                      : constant Ada.Real_Time.Time_Span := Ada.Real_Time.Milliseconds(20);
+      Next_Period                 : Ada.Real_Time.Time;
+      Start_Point                 : Ada.Real_Time.Time;
       -- We do not wish to write to the motor to early
-      Min_Start_Time             : Ada.Real_Time.Time_Span          := Ada.Real_Time.Milliseconds(15);
+      Min_Start_Time              : Ada.Real_Time.Time_Span          := Ada.Real_Time.Milliseconds(15);
       -- Worst-Case Computation Time Analysis
       Execution_Start             : Ada.Real_Time.Time;
       Execution_End               : Ada.Real_Time.Time;
       Total_Computation_Time      : Ada.Real_Time.Time_Span;
       Worst_Case_Computation_Time : Ada.Real_Time.Time_Span         := Ada.Real_Time.Milliseconds(0);
       -- Task Specific Variable Declarations
-      Actuator_Value             : RPM;
+      Actuator_Value              : RPM;
+      Motor_To_Run                : Motor_Direction;
       begin
             Motor_Setup.Calibrate_Motors_If_Required;
             Epoch.Get_Start_Time(Start_Point);
@@ -296,7 +304,14 @@ package body Task_Implementations is
                   -- START OF EXECUTION
 
                   Execution_Start := Ada.Real_Time.Clock; 
-                  Motor_AW.Get(Actuator_Value);
+                  Motor_AW.Get(Actuator_Value, Motor_To_Run);
+
+                  if Motor_To_Run = Right then
+                        null; -- Insert IMU code here
+                  else
+                        null; -- Insert IMU code here
+                  end if;
+
                   Next_Period := Next_Period + Period;
 
                   -- END OF EXECUTION

@@ -10,11 +10,12 @@ package Shared_Data is
     end Sensor_Reading;
 
     protected type Actuator_Write is
-        procedure Set (Calculated_Value : in RPM);
-        entry     Get (Value : out RPM);
+        procedure Set (Calculated_Value : in RPM; Motor : in Motor_Direction);
+        entry     Get (Value : out RPM; Motor : out Motor_Direction);
     private
         Updated       : Boolean := False;
         Current_Value : RPM;
+        Current_Motor         : Motor_Direction;
     end Actuator_Write;
 
 
