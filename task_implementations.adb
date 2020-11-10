@@ -36,7 +36,7 @@ package body Task_Implementations is
                         Gyroscope_SR.Set(Velocity);
                         -- Define next time to run
                         Next_Period   := Next_Period + Period;
-
+                           
                         -- END OF EXECUTION
 
                         Execution_End := Ada.Real_Time.Clock;   
@@ -62,9 +62,8 @@ package body Task_Implementations is
                               Gyroscope_SR.Set(Velocity);
                               Acceptance_Test(Velocity_Max, Velocity_Min, Velocity, Total_Computation_Time, Total_Computation_Time_Limit, Recoveryblock_Count);
 
-                        When Excecution_Time_Overun =>
-                              ada.Text_IO.Put_Line("Gyroscope read: Execution time error");
-                        
+                        when Excecution_Time_Overun =>
+                              ada.Text_IO.Put_Line("Gyroscope read: Execution time error");                  
                   end;
             end loop;
    end Gyroscope_Reader;
@@ -176,9 +175,8 @@ package body Task_Implementations is
                               Accelerometer_SR.Set(Angle);
                               Acceptance_Test(Angle_Max, Angle_Min, Angle, Total_Computation_Time, Total_Computation_Time_Limit, Recoveryblock_Count);
                         
-                        When Excecution_Time_Overun =>
+                        when Excecution_Time_Overun =>
                               Ada.Text_IO.Put_Line("Accelerometer read: Execution time error");
-
                   end;
             end loop;
    end Accelerometer_Reader;
@@ -271,7 +269,6 @@ package body Task_Implementations is
                   
                         when Excecution_Time_Overun =>
                               Ada.Text_IO.Put_Line("Cascade controller: Execution time error");
-
                   end;
             end loop;
    end Cascade_Controller;

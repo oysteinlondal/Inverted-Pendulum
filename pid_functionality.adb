@@ -12,10 +12,10 @@ package body PID_Functionality is
 
     procedure Map_To_RPM (Torq_Ref : in Float; RPM_Value : out RPM) is
     begin
-        if Torq_Ref > 0 then
-            RPM_Value := 416 * Torq_Ref + 1000;
+        if Torq_Ref > 0.0 then
+            null;--RPM_Value := (417 * RPM(Torq_Ref)) + 1000;
         else
-            RPM_Value := 416 * (-(Torq_Ref)) + 1000;
+            null;--RPM_Value := (417 * RPM(-(Torq_Ref))) + 1000;
         end if;  
     end Map_To_RPM;
 
