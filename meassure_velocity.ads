@@ -1,4 +1,5 @@
 --with Imu.Library; use Imu.Library
+with Exception_Declarations; use Exception_Declarations;
 
 package Meassure_Velocity is
     procedure Retrieve_Velocity (Velocity_Z : out Float);
