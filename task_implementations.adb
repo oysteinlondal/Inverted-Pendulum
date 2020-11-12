@@ -304,9 +304,11 @@ package body Task_Implementations is
                   Motor_AW.Get(Actuator_Value, Motor_To_Run);
 
                   if Motor_To_Run = Right then
-                        null; -- Insert IMU code here
+                     Write(3,Actuator_Value);
+                     Set_Analog_Period_Us(20000);
                   else
-                        null; -- Insert IMU code here
+                     Write(28,Actuator_Value);
+                     Set_Analog_Period_Us(20000);
                   end if;
 
                   Next_Period := Next_Period + Period;
